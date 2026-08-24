@@ -1,0 +1,99 @@
+{
+  "weddingDateISO": "2026-08-30T17:00:00",
+  "displayDate": "03.08.2026",
+  "lunarDate": "21/06 BÍNH NGỌ",
+  "locationCity": "ĐÀ NẴNG",
+  "bgMusic": "assets/audio/nothings-gonna-change-my-love-for-you.mp3",
+  "heroPhoto": "assets/images/anhcuoi_chinh.png",
+  "groom": {
+    "fullName": "Hồ Nhật Huy",
+    "shortName": "Nhật Huy",
+    "role": "ÚT NAM",
+    "family": {
+      "father": "HỒ NGÔ ANH TUẤN",
+      "mother": "NGUYỄN THỊ THANH HÒA",
+      "address": "Điện Biên Phủ, P. Thanh Khê, TP. Đà Nẵng"
+    }
+  },
+  "bride": {
+    "fullName": "Đỗ Thị Duyên",
+    "shortName": "Duyên Đỗ",
+    "role": "TRƯỞNG NỮ",
+    "family": {
+      "father": "NGUYỄN TƯ",
+      "mother": "NGUYỄN THỊ XANH",
+      "address": "Tổ 9, Thôn 5, X. Tiên Phước, TP. Đà Nẵng"
+    }
+  },
+  "partyInfo": {
+    "restaurantName": "PHÌ LŨ",
+    "hallName": "SẢNH PEARL",
+    "time": "17:00",
+    "address": "Lô 1-2-3 Khu công viên Bắc Tượng Đài, đường 2/9, TP. Đà Nẵng",
+    "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.1102432822184!2d108.2201!3d16.0592!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTbDscDAzJzMzLjEiTiAxMDjCsDEzJzEyLjQiRQ!5e0!3m2!1svi!2s!4v1620000000000!5m2!1svi!2s",
+    "mapDirectUrl": "https://maps.google.com"
+  },
+  "ceremonyInfo": {
+    "title": "Cử hành tại tư gia",
+    "time": "09 giờ 30",
+    "dayOfWeek": "Thứ Hai",
+    "date": "20.12.2026",
+    "lunarDate": "21/05 BÍNH NGỌ"
+  },
+  "timeline": [
+    {
+      "date": "2022",
+      "title": "Lần Đầu Gặp Gỡ",
+      "desc": "Ánh mắt đầu tiên chạm nhau tại quán cà phê nhỏ ở Đà Nẵng.",
+      "image": "assets/images/timhieu.png"
+    },
+    {
+      "date": "2022",
+      "title": "Lời Đồng Ý",
+      "desc": "Chính thức nắm tay nhau bước vào chặng đường hẹn hò ngọt ngào.",
+      "image": "assets/images/totinh.png"
+    },
+    {
+      "date": "2026",
+      "title": "Lời Cầu Hôn",
+      "desc": "\"Đồng ý làm vợ anh nhé!\" — Dưới ánh hoàng hôn bờ biển Bà Nà.",
+      "image": "assets/images/cauhon.png"
+    }
+  ],
+  "gallery": [
+    "assets/images/anhcuoi1.png",
+    "assets/images/anhcuoi2.png",
+    "assets/images/anhcuoi3.png",
+    "assets/images/anhcuoi4.png",
+    "assets/images/anhcuoi5.png",
+    "assets/images/anhcuoi6.png",
+    "assets/images/anhcuoi1.png",
+    "assets/images/anhcuoi2.png",
+    "assets/images/anhcuoi3.png",
+    "assets/images/anhcuoi4.png",
+    "assets/images/anhcuoi5.png",
+    "assets/images/anhcuoi6.png"
+  ],
+  "venue": {
+    "hallName": "SẢNH PEARL",
+    "subHall": "SẢNH PEARL",
+    "address": "Trung tâm Hội nghị Tiệc cưới - Lô 1-2-3 Khu công viên Bắc Tượng Đài, đường 2/9, TP. Đà Nẵng",
+    "time": "17:00",
+    "date": "03.08.2026",
+    "lunarDate": "21/05 BÍNH NGỌ",
+    "mapUrl": "https://maps.google.com/?q=Trung+tam+Hoi+nghi+Tiec+cuoi+Da+Nang",
+    "mapEmbedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.110287118471!2d108.2215!3d16.0594!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314219c8f0000001%3A0x1!2zQ2_MgW5nIHZpZW4gQVBFRw!5e0!3m2!1svi!2svn!4v1700000000000!5m2!1svi!2svn"
+  },
+  "gift": {
+    "groom": {
+      "bankName": "MB",
+      "accountNumber": "0123456789",
+      "accountName": "NHAT HUY"
+    },
+    "bride": {
+      "bankName": "VCB",
+      "accountNumber": "9876543210",
+      "accountName": "DUYEN DO"
+    }
+  }
+}

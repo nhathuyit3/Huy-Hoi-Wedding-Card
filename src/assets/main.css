@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Alex+Brush&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+/* Reset cơ bản */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { 
+  font-family: 'Montserrat', sans-serif; 
+  background-color: #fcf9f6; 
+  color: #2c2c2c; 
+  text-align: center; 
+  overflow-x: hidden; 
+  width: 100vw;
+}
+body.is-locked { overflow: hidden; height: 100vh; }
+
+/* Font định dạng */
+.main-title, .couple-heading, .welcome-heading, .guest-name, .couple-heading-small, .polaroid-caption, .countdown-quote {
+  font-family: 'Alex Brush', cursive;
+  font-weight: normal;
+}
+.groom-name-display, .bride-name-display, .timeline-title, .hall-name.restaurant-name, .timeline-header .section-heading {
+  font-family: 'Playfair Display', 'Times New Roman', serif;
+}
+
+/* Nút bấm nhạc cố định */
+.music-toggle-btn {
+  position: fixed; bottom: 20px; right: 20px; z-index: 999;
+  width: 48px; height: 48px; border-radius: 50%;
+  background-color: #a32a29; border: 2px solid #ffffff;
+  color: #ffffff; font-size: 22px; display: flex;
+  align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+.music-toggle-btn.playing { animation: spinRecord 4s linear infinite; }
+@keyframes spinRecord { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* --- XỬ LÝ RESPONSIVE HÌNH ẢNH TOÀN DỰ ÁN --- */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ép khung ảnh hiển thị đúng tỷ lệ mà không bị méo/bẹt */
+.photo-container, .timeline-img, .photo-card {
+  width: 100%;
+  overflow: hidden;
+}
+
+.photo-container img, .timeline-img img, .photo-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Giúp ảnh scaled vừa khít khung */
+  object-position: center;
+}
+
+/* Điều chỉnh Responsive cho Mobile & Tablet */
+@media (max-width: 868px) {
+  .hero-container-custom { flex-direction: column-reverse; gap: 35px; }
+  .polaroid-frame { max-width: 320px; width: 100%; margin: 0 auto; }
+  .photo-container { height: 360px; }
+}
+
+@media (max-width: 576px) {
+  .polaroid-frame { max-width: 280px; }
+  .photo-container { height: 300px; }
+  .photo-card { flex: 0 0 220px; height: 300px; }
+}
