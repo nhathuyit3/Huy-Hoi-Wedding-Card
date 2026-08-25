@@ -4,20 +4,27 @@
     <div class="door-panel door-left"></div>
     <div class="door-panel door-right"></div>
 
-    <!-- Canvas hạt trái tim xoay -->
+    <!-- Canvas hạt trái tim bay lên như bong bóng -->
     <canvas 
       ref="particleCanvas" 
       id="particleHeartCanvas" 
       :class="{ 'fade-out': isOpened }"
     ></canvas>
 
-    <!-- Khung nội dung giữa màn hình -->
-    <div class="cover-content modern-glass">
-      <div class="wedding-badge double-happiness-badge">
+    <!-- Khung nội dung giữa màn hình theo mẫu thiết kế -->
+    <div class="cover-content">
+      <span class="sub-header">WEDDING INVITATION</span>
+
+      <!-- Nút Chữ Hỷ Tỏa Ra & Nhấn Để Mở Thiệp -->
+      <div 
+        class="double-happiness-badge pulse-effect" 
+        @click="handleOpen"
+        role="button"
+        tabindex="0"
+        title="Nhấn để mở thiệp"
+      >
         <span class="double-happiness-text">囍</span>
       </div>
-
-      <span class="sub-header">SAVE OUR DATE</span>
 
       <h1 class="main-title">
         <span class="groom-short">{{ data.groom?.shortName }}</span>
@@ -26,22 +33,25 @@
       </h1>
 
       <div class="date-location-wrapper">
-        <p class="wedding-date-text display-date">{{ data.displayDate }}</p>
-        <span class="dot-divider">•</span>
-        <p class="location-text location-city">{{ data.locationCity }}</p>
+        <div class="date-line-container">
+          <span class="line"></span>
+          <p class="wedding-date-text display-date">{{ formattedDate }}</p>
+          <span class="line"></span>
+        </div>
+        <p class="location-text location-city">{{ formattedLocation }}</p>
       </div>
 
-      <!-- Nút Bấm Mở Thiệp -->
-      <button @click="handleOpen" class="open-card-btn modern-btn">
-        <span class="btn-text">MỞ THIỆP CƯỚI</span>
-        <span class="btn-icon">♥</span>
-      </button>
+      <!-- Cuộn / Gợi ý mở thiệp -->
+      <div class="scroll-hint" @click="handleOpen">
+        <span class="hint-text">CUỘN ĐỂ MỞ THIỆP</span>
+        <span class="arrow-down">▼</span>
+      </div>
     </div>
   </section>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
 export default {
   name: 'CoverDoor',
@@ -57,11 +67,62 @@ export default {
   },
   emits: ['open'],
   setup(props, { emit }) {
-    // Element Canvas
     const particleCanvas = ref(null)
     let animationFrameId = null
 
-    // Hàm tạo hiệu ứng Canvas Trái tim
+    const formattedDate = computed(() => {
+      const rawDate = props.data?.displayDate || ''
+      const parts = rawDate.match(/\d+/g)
+      if (parts && parts.length >= 3) {
+        const day = parts[0].padStart(2, '0')
+        const month = parts[1].padStart(2, '0')
+        const year = parts[2]
+        return `${day} . ${month} . ${year}`
+      }
+      return rawDate || '03 . 08 . 2026'
+    })
+
+    const formattedLocation = computed(() => {
+      const city = props.data?.locationCity || 'ĐÀ NẴNG'
+      return `${city.toUpperCase()} · VIỆT NAM`
+    })
+
+    // HÀM VẼ TRÁI TIM LÊN CANVAS
+    const drawHeart = (ctx, x, y, size, color, alpha) => {
+      ctx.save()
+      ctx.globalAlpha = alpha
+      ctx.fillStyle = color
+      ctx.beginPath()
+      const topCurveHeight = size * 0.3
+      ctx.moveTo(x, y + topCurveHeight)
+      // Nửa trái tim bên trái
+      ctx.bezierCurveTo(
+        x, y, 
+        x - size / 2, y, 
+        x - size / 2, y + topCurveHeight
+      )
+      ctx.bezierCurveTo(
+        x - size / 2, y + (size + topCurveHeight) / 2, 
+        x, y + size, 
+        x, y + size
+      )
+      // Nửa trái tim bên phải
+      ctx.bezierCurveTo(
+        x, y + size, 
+        x + size / 2, y + (size + topCurveHeight) / 2, 
+        x + size / 2, y + topCurveHeight
+      )
+      ctx.bezierCurveTo(
+        x + size / 2, y, 
+        x, y, 
+        x, y + topCurveHeight
+      )
+      ctx.closePath()
+      ctx.fill()
+      ctx.restore()
+    }
+
+    // HIỆU ỨNG TRÁI TIM BỎNG BÓNG BAY LÊN
     const initParticleCanvas = () => {
       const canvas = particleCanvas.value
       if (!canvas) return
@@ -77,61 +138,44 @@ export default {
       }
       window.addEventListener('resize', handleResize)
 
-      // Công thức hình trái tim
-      const heartEquation = (t) => {
-        const x = 16 * Math.pow(Math.sin(t), 3)
-        const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t))
-        return { x, y }
+      // Khởi tạo danh sách các hạt trái tim bong bóng
+      const hearts = []
+      const heartCount = 45 // Số lượng trái tim cùng xuất hiện
+
+      const createHeart = (initialY = null) => {
+        return {
+          x: Math.random() * width,
+          y: initialY !== null ? initialY : height + Math.random() * 100,
+          size: Math.random() * 12 + 8, // Kích thước ngẫu nhiên (8px - 20px)
+          speedY: Math.random() * 1.2 + 0.6, // Tốc độ bay lên
+          swingSpeed: Math.random() * 0.03 + 0.01, // Tốc độ lắc đung đưa ngang
+          swingAmount: Math.random() * 1.5 + 0.5,
+          swingAngle: Math.random() * Math.PI * 2,
+          alpha: Math.random() * 0.5 + 0.25, // Độ trong suốt nhẹ nhàng
+          color: Math.random() > 0.3 ? '#ba2b3b' : '#c09c5d' // Phối giữa Đỏ Đô & Vàng Ánh Kim
+        }
       }
 
-      const particles = []
-      const particleCount = 1500
-      const scale = Math.min(width, height) / 34
-
-      for (let i = 0; i < particleCount; i++) {
-        const t = Math.PI * 2 * Math.random()
-        const edgePos = heartEquation(t)
-        const r = Math.sqrt(Math.random())
-
-        particles.push({
-          baseX: edgePos.x * r,
-          baseY: edgePos.y * r,
-          x: (Math.random() - 0.5) * width * 1.5,
-          y: (Math.random() - 0.5) * height * 1.5,
-          size: Math.random() * 2 + 1,
-          speed: Math.random() * 0.03 + 0.015,
-          alpha: Math.random() * 0.7 + 0.3
-        })
+      for (let i = 0; i < heartCount; i++) {
+        hearts.push(createHeart(Math.random() * height)) // Rải đều khắp màn hình lúc bắt đầu
       }
-
-      let rotationAngle = 0
-      let rotationSpeed = 0.006
 
       const drawParticles = () => {
         ctx.clearRect(0, 0, width, height)
 
-        rotationAngle += rotationSpeed
-        if (rotationAngle > 0.1 || rotationAngle < -0.1) {
-          rotationSpeed = -rotationSpeed
-        }
+        hearts.forEach((h) => {
+          // Cập nhật vị trí
+          h.y -= h.speedY
+          h.swingAngle += h.swingSpeed
+          h.x += Math.sin(h.swingAngle) * h.swingAmount
 
-        const centerX = width / 2
-        const centerY = height / 2 - 20
+          // Vẽ hình trái tim
+          drawHeart(ctx, h.x, h.y, h.size, h.color, h.alpha)
 
-        particles.forEach((p) => {
-          const rotatedX = p.baseX * Math.cos(rotationAngle) - p.baseY * Math.sin(rotationAngle)
-          const rotatedY = p.baseX * Math.sin(rotationAngle) + p.baseY * Math.cos(rotationAngle)
-
-          const targetX = centerX + rotatedX * scale
-          const targetY = centerY + rotatedY * scale
-
-          p.x += (targetX - p.x) * p.speed
-          p.y += (targetY - p.y) * p.speed
-
-          ctx.fillStyle = `rgba(163, 42, 41, ${p.alpha})`
-          ctx.beginPath()
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2)
-          ctx.fill()
+          // Khi trái tim bay hết lên đỉnh màn hình, tái tạo lại ở phía dưới
+          if (h.y < -30) {
+            Object.assign(h, createHeart(height + 20))
+          }
         })
 
         animationFrameId = requestAnimationFrame(drawParticles)
@@ -145,10 +189,6 @@ export default {
         cancelAnimationFrame(animationFrameId)
       }
       emit('open')
-      // // Dừng animation canvas sau khi mở cửa 1.2s để tiết kiệm CPU/GPU
-      // setTimeout(() => {
-      //   if (animationFrameId) cancelAnimationFrame(animationFrameId)
-      // }, 1200)
     }
 
     onMounted(() => {
@@ -161,6 +201,8 @@ export default {
 
     return {
       particleCanvas,
+      formattedDate,
+      formattedLocation,
       handleOpen
     }
   }
@@ -179,6 +221,7 @@ export default {
   justify-content: center;
   align-items: center;
   perspective: 1000px;
+  background-color: #fcfbf9;
 }
 
 .door-panel {
@@ -186,22 +229,22 @@ export default {
   top: 0;
   width: 50vw;
   height: 100vh;
-  background: radial-gradient(circle, #ffffff 0%, #f5efe9 100%);
+  background: #fdfbf7;
   transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
   z-index: 1;
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.03);
 }
 
 .door-left {
   left: 0;
   transform-origin: left center;
-  border-right: 1px solid rgba(212, 169, 112, 0.3);
+  box-shadow: inset -10px 0 20px rgba(0, 0, 0, 0.02);
+  border-right: 1px solid rgba(192, 156, 93, 0.25);
 }
 
 .door-right {
   right: 0;
   transform-origin: right center;
-  border-left: 1px solid rgba(212, 169, 112, 0.3);
+  border-left: 1px solid rgba(192, 156, 93, 0.25);
 }
 
 #particleHeartCanvas {
@@ -214,107 +257,185 @@ export default {
   pointer-events: none;
 }
 
+/* KHUNG NỘI DUNG */
 .cover-content {
   position: relative;
   z-index: 3;
-  background: rgba(255, 255, 255, 0.88);
-  padding: 40px 24px;
-  border-radius: 24px;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  max-width: 90%;
-  width: 420px;
+  width: 100%;
+  max-width: 550px;
+  height: 85vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 40px 20px;
   text-align: center;
+  box-sizing: border-box;
   transition: transform 0.8s ease, opacity 0.6s ease;
 }
 
 .sub-header {
-  font-size: 0.8rem;
-  letter-spacing: 3px;
-  color: #777;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 5px;
+  color: #99876d;
   font-weight: 600;
-  display: block;
-  margin-bottom: 10px;
+  text-transform: uppercase;
 }
 
 .double-happiness-badge {
-  width: 70px;
-  height: 70px;
-  background: linear-gradient(135deg, #a32a29 0%, #821f1e 100%);
+  position: relative;
+  width: 96px;
+  height: 96px;
+  background-color: #ba2b3b;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 10px auto 18px auto;
-  outline: 6px solid #f2e2e2;
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+  box-shadow: 0 6px 16px rgba(186, 43, 59, 0.3);
+}
+
+.double-happiness-badge:hover {
+  transform: scale(1.06);
+  background-color: #a32433;
 }
 
 .double-happiness-text {
   color: #ffffff;
-  font-size: 2.2rem;
-  font-weight: bold;
+  font-size: 3.2rem;
+  line-height: 1;
+  font-weight: 500;
+  margin-top: -3px;
+}
+
+.pulse-effect::before,
+.pulse-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(186, 43, 59, 0.6);
+  animation: pulse-ring 2.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+  pointer-events: none;
+}
+
+.pulse-effect::after {
+  animation-delay: 0.8s;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1.45);
+    opacity: 0;
+  }
 }
 
 .main-title {
-  font-size: 2.8rem;
-  color: #222;
-  margin: 10px 0;
+  font-family: 'Playfair Display', 'Cormorant Garamond', serif;
+  font-size: 2.3rem;
+  font-weight: 400;
+  color: #2b2b2b;
+  margin: 10px 0 0 0;
+  letter-spacing: -0.5px;
 }
 
 .heart-sep {
-  color: #a32a29;
-  font-size: 1.2rem;
-  margin: 0 6px;
+  color: #ba2b3b;
+  font-size: 1rem;
+  margin: 0 8px;
+  vertical-align: middle;
 }
 
 .date-location-wrapper {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.date-line-container {
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 12px 0 24px;
-  font-size: 0.95rem;
+  gap: 14px;
+}
+
+.date-line-container .line {
+  width: 35px;
+  height: 1px;
+  background-color: #d1c5b4;
 }
 
 .wedding-date-text {
-  font-weight: 600;
-  color: #555;
-  letter-spacing: 1px;
-}
-
-.dot-divider {
-  color: #a32a29;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #7d6b54;
+  letter-spacing: 2px;
+  margin: 0;
 }
 
 .location-city {
-  color: #888;
-  letter-spacing: 1px;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.72rem;
+  color: #9c8c77;
+  letter-spacing: 3px;
+  margin: 0;
+  text-transform: uppercase;
 }
 
-.open-card-btn {
-  background: linear-gradient(135deg, #a32a29 0%, #821f1e 100%);
-  color: white;
-  border: none;
-  padding: 14px 28px;
-  border-radius: 30px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 1px;
-  cursor: pointer;
-  box-shadow: 0 6px 20px rgba(163, 42, 41, 0.35);
-  display: inline-flex;
+.scroll-hint {
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 8px;
-  transition: transform 0.3s ease;
+  gap: 6px;
+  cursor: pointer;
+  opacity: 0.75;
+  transition: opacity 0.3s;
 }
 
-.open-card-btn:hover {
-  transform: translateY(-2px) scale(1.03);
+.scroll-hint:hover {
+  opacity: 1;
 }
 
-/* HIỆU ỨNG KHI MỞ THIỆP */
+.hint-text {
+  font-size: 0.68rem;
+  letter-spacing: 4px;
+  color: #8c7d6b;
+  font-weight: 500;
+}
+
+.arrow-down {
+  font-size: 0.55rem;
+  color: #ba2b3b;
+  animation: bounce 1.8s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(5px);
+  }
+  60% {
+    transform: translateY(2px);
+  }
+}
+
 .cover-door.opened .door-left {
   transform: translateX(-100%);
 }
@@ -324,7 +445,7 @@ export default {
 }
 
 .cover-door.opened .cover-content {
-  transform: scale(0.8);
+  transform: scale(0.9);
   opacity: 0;
 }
 
@@ -340,13 +461,20 @@ export default {
   pointer-events: none;
 }
 
-/* RESPONSIVE CHO MÀN HÌNH NHỎ */
 @media (max-width: 480px) {
   .cover-content {
-    padding: 30px 16px;
+    height: 90vh;
+    padding: 30px 15px;
+  }
+  .double-happiness-badge {
+    width: 84px;
+    height: 84px;
+  }
+  .double-happiness-text {
+    font-size: 2.8rem;
   }
   .main-title {
-    font-size: 2.2rem;
+    font-size: 1.9rem;
   }
 }
 </style>
