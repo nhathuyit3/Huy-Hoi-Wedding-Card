@@ -95,13 +95,25 @@ export default {
     const currentAngleStart = ref(0)
     const radius = ref(480)
 
+    // TÍNH TOÁN RADIUS THÔNG MINH THEO SỐ LƯỢNG ẢNH ĐỂ KHÔNG BỊ CHỒNG/CẮM VÀO NHAU
     const updateRadius = () => {
-      if (window.innerWidth < 576) {
-        radius.value = 290
-      } else if (window.innerWidth < 992) {
-        radius.value = 380
+      const total = galleryList.value.length || 6
+      const isMobile = window.innerWidth < 576
+      const isTablet = window.innerWidth < 992
+
+      // Độ rộng ước tính của 1 khung hình (px)
+      const frameWidth = isMobile ? 150 : (isTablet ? 190 : 240)
+      
+      // Bán kính tối thiểu cần có dựa trên đường tròn toán học: R = (w / 2) / tan(PI / N)
+      const calculatedRadius = Math.round((frameWidth / 2) / Math.tan(Math.PI / total))
+
+      if (isMobile) {
+        // Trên di động, đảm bảo bán kính đủ lớn (tối thiểu 340px) để các ảnh đứng tách rời
+        radius.value = Math.max(340, calculatedRadius)
+      } else if (isTablet) {
+        radius.value = Math.max(420, calculatedRadius)
       } else {
-        radius.value = 520
+        radius.value = Math.max(520, calculatedRadius)
       }
     }
 
@@ -134,7 +146,7 @@ export default {
       if (!isDragging.value) return
       const clientX = e.touches ? e.touches[0].clientX : e.clientX
       const deltaX = clientX - startX.value
-      rotationAngle.value = currentAngleStart.value + deltaX * 0.35
+      rotationAngle.value = currentAngleStart.value + deltaX * 0.4
     }
 
     const stopDrag = () => {
@@ -234,11 +246,11 @@ export default {
   font-style: italic;
 }
 
-/* Viewport 3D với góc nhìn xa hơn để không bị bóp méo pixel */
+/* Viewport 3D */
 .reel-viewport {
   width: 100%;
   height: 500px;
-  perspective: 2000px; /* Tăng perspective giúp chiều sâu mượt và nét hơn */
+  perspective: 2000px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -256,7 +268,7 @@ export default {
   height: 350px;
   position: relative;
   transform-style: preserve-3d;
-  will-change: transform; /* Kích hoạt GPU Hardware Acceleration */
+  will-change: transform;
   transition: transform 0.05s ease-out;
 }
 
@@ -273,12 +285,10 @@ export default {
   border-radius: 4px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
   
-  /* Ép trình duyệt giữ độ nét 100% trong môi trường 3D */
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   transform-style: preserve-3d;
   will-change: transform;
-  
   transition: border-color 0.3s ease, filter 0.3s ease;
 }
 
@@ -305,18 +315,15 @@ export default {
   background-color: #000;
 }
 
-/* Khắc phục triệt để mờ ảnh */
 .photo-inner img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   object-position: center;
   pointer-events: none;
-  
-  /* Thuộc tính ép render ảnh sắc nét */
   image-rendering: -webkit-optimize-contrast;
   image-rendering: crisp-edges;
-  transform: translateZ(0); /* Kích hoạt riêng lớp GPU cho từng bức ảnh */
+  transform: translateZ(0);
 }
 
 /* Lightbox Modal */
@@ -372,7 +379,7 @@ export default {
 .lightbox-nav.prev { left: 20px; }
 .lightbox-nav.next { right: 20px; }
 
-/* Responsive Mobile */
+/* OPTIMIZE CHUẨN XÁC CHO THIẾT BỊ DI ĐỘNG (MOBILE) */
 @media (max-width: 576px) {
   .gallery-section {
     padding: 40px 0 60px;
@@ -383,17 +390,18 @@ export default {
   }
 
   .reel-viewport {
-    height: 400px;
-    perspective: 1400px;
+    height: 380px;
+    perspective: 1600px; /* Tăng góc nhìn 3D để giảm góc ép dẹp trên màn nhỏ */
   }
 
+  /* Thu gọn độ rộng khung hình giúp tạo khoảng trống lớn giữa các ảnh */
   .reel-cylinder {
-    width: 170px;
-    height: 260px;
+    width: 150px;
+    height: 230px;
   }
 
   .photo-inner {
-    height: 215px;
+    height: 185px;
   }
 }
 </style>
