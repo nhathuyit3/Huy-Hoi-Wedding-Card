@@ -16,9 +16,9 @@
     }
   },
   "bride": {
-    "fullName": "Đỗ Thị Duyên",
-    "shortName": "Duyên Đỗ",
-    "role": "TRƯỞNG NỮ",
+    "fullName": "Võ Minh Tâm",
+    "shortName": "Minh Tâm",
+    "role": "ÚT NỮ",
     "family": {
       "father": "NGUYỄN TƯ",
       "mother": "NGUYỄN THỊ XANH",
@@ -72,7 +72,10 @@
     "assets/images/anhcuoi3.png",
     "assets/images/anhcuoi4.png",
     "assets/images/anhcuoi5.png",
-    "assets/images/anhcuoi6.png"
+    "assets/images/anhcuoi6.png",
+    "assets/images/anhcuoi7.png",
+    "assets/images/anhcuoi8.png",
+    "assets/images/anhcuoi9.png"
   ],
   "venue": {
     "hallName": "SẢNH PEARL",

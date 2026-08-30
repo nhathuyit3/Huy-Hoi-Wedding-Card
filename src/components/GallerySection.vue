@@ -50,17 +50,19 @@
         </div>
       </div>
 
-      <!-- Lightbox phóng to ảnh -->
-      <div v-if="selectedImageIndex !== null" class="lightbox" @click="closeLightbox">
-        <button class="lightbox-close" @click.stop="closeLightbox">&times;</button>
-        <button class="lightbox-nav prev" @click.stop="prevImage">&lsaquo;</button>
-        
-        <div class="lightbox-content" @click.stop>
-          <img :src="galleryList[selectedImageIndex]" alt="Ảnh phóng to" />
-        </div>
+      <!-- 💡 Dùng Teleport để chuyển Lightbox ra khỏi khung 3D, gắn thẳng vào thẻ <body> -->
+      <Teleport to="body">
+        <div v-if="selectedImageIndex !== null" class="lightbox" @click="closeLightbox">
+          <button class="lightbox-close" @click.stop="closeLightbox">&times;</button>
+          <button class="lightbox-nav prev" @click.stop="prevImage">&lsaquo;</button>
+          
+          <div class="lightbox-content" @click.stop>
+            <img :src="galleryList[selectedImageIndex]" alt="Ảnh phóng to" />
+          </div>
 
-        <button class="lightbox-nav next" @click.stop="nextImage">&rsaquo;</button>
-      </div>
+          <button class="lightbox-nav next" @click.stop="nextImage">&rsaquo;</button>
+        </div>
+      </Teleport>
     </div>
   </section>
 </template>
@@ -95,20 +97,15 @@ export default {
     const currentAngleStart = ref(0)
     const radius = ref(480)
 
-    // TÍNH TOÁN RADIUS THÔNG MINH THEO SỐ LƯỢNG ẢNH ĐỂ KHÔNG BỊ CHỒNG/CẮM VÀO NHAU
     const updateRadius = () => {
       const total = galleryList.value.length || 6
       const isMobile = window.innerWidth < 576
       const isTablet = window.innerWidth < 992
 
-      // Độ rộng ước tính của 1 khung hình (px)
       const frameWidth = isMobile ? 150 : (isTablet ? 190 : 240)
-      
-      // Bán kính tối thiểu cần có dựa trên đường tròn toán học: R = (w / 2) / tan(PI / N)
       const calculatedRadius = Math.round((frameWidth / 2) / Math.tan(Math.PI / total))
 
       if (isMobile) {
-        // Trên di động, đảm bảo bán kính đủ lớn (tối thiểu 340px) để các ảnh đứng tách rời
         radius.value = Math.max(340, calculatedRadius)
       } else if (isTablet) {
         radius.value = Math.max(420, calculatedRadius)
@@ -158,7 +155,8 @@ export default {
     }
 
     const openLightbox = (index) => {
-      if (Math.abs(rotationAngle.value - currentAngleStart.value) > 2) return
+      // Tăng tolerance cho thiết bị di động để chạm tay không bị nhầm thành drag
+      if (Math.abs(rotationAngle.value - currentAngleStart.value) > 5) return
       selectedImageIndex.value = index
       document.body.style.overflow = 'hidden'
     }
@@ -256,13 +254,13 @@ export default {
   justify-content: center;
   cursor: grab;
   position: relative;
+  touch-action: pan-y; /* Cho phép cuộn trang dọc tự nhiên trên mobile */
 }
 
 .reel-viewport:active {
   cursor: grabbing;
 }
 
-/* Trục xoay cuộn phim */
 .reel-cylinder {
   width: 240px;
   height: 350px;
@@ -272,7 +270,6 @@ export default {
   transition: transform 0.05s ease-out;
 }
 
-/* Khung ảnh trên cuộn phim */
 .reel-frame {
   position: absolute;
   top: 0;
@@ -284,7 +281,6 @@ export default {
   padding: 8px 8px 10px 8px;
   border-radius: 4px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
-  
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   transform-style: preserve-3d;
@@ -326,59 +322,6 @@ export default {
   transform: translateZ(0);
 }
 
-/* Lightbox Modal */
-.lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.95);
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.lightbox-content {
-  max-width: 90vw;
-  max-height: 85vh;
-}
-
-.lightbox-content img {
-  max-width: 100%;
-  max-height: 85vh;
-  border-radius: 4px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
-}
-
-.lightbox-close {
-  position: absolute;
-  top: 20px;
-  right: 25px;
-  background: none;
-  border: none;
-  color: #ffffff;
-  font-size: 2.5rem;
-  cursor: pointer;
-}
-
-.lightbox-nav {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-  border: none;
-  font-size: 3rem;
-  padding: 10px 18px;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.lightbox-nav.prev { left: 20px; }
-.lightbox-nav.next { right: 20px; }
-
 /* OPTIMIZE CHUẨN XÁC CHO THIẾT BỊ DI ĐỘNG (MOBILE) */
 @media (max-width: 576px) {
   .gallery-section {
@@ -391,10 +334,9 @@ export default {
 
   .reel-viewport {
     height: 380px;
-    perspective: 1600px; /* Tăng góc nhìn 3D để giảm góc ép dẹp trên màn nhỏ */
+    perspective: 1600px;
   }
 
-  /* Thu gọn độ rộng khung hình giúp tạo khoảng trống lớn giữa các ảnh */
   .reel-cylinder {
     width: 150px;
     height: 230px;
@@ -402,6 +344,95 @@ export default {
 
   .photo-inner {
     height: 185px;
+  }
+}
+</style>
+
+<!-- Style toàn cục riêng cho Lightbox khi Teleport ra body -->
+<style>
+.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.92);
+  backdrop-filter: blur(5px);
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.lightbox-content {
+  max-width: 90vw;
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-content img {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  font-size: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000000;
+}
+
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  border: none;
+  font-size: 2.2rem;
+  width: 46px;
+  height: 46px;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000000;
+}
+
+.lightbox-nav.prev { left: 15px; }
+.lightbox-nav.next { right: 15px; }
+
+@media (max-width: 576px) {
+  .lightbox-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 1.8rem;
+  }
+  .lightbox-nav.prev { left: 8px; }
+  .lightbox-nav.next { right: 8px; }
+  .lightbox-close {
+    top: 10px;
+    right: 10px;
+    width: 38px;
+    height: 38px;
   }
 }
 </style>
