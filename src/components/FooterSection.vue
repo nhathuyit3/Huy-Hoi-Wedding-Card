@@ -42,7 +42,7 @@ export default {
     },
     brideName: {
       type: String,
-      default: 'Duyên Đỗ'
+      default: 'Bích Khuê'
     }
   }
 }

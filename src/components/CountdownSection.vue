@@ -6,11 +6,13 @@
         <!-- Badge hoa văn trang trí nhỏ phía trên -->
         <div class="top-ornament">
           <span class="gold-leaf">❧</span>
-          <span class="section-subtitle">COUNTDOWN TO THE SPECIAL DAY</span>
+          <span class="section-subtitle">{{ t.countdownSubtitle }}</span>
           <span class="gold-leaf">☙</span>
         </div>
 
-        <h2 class="countdown-quote">Cùng Đếm Ngược Thời Gian</h2>
+        <h2 class="countdown-quote" :class="{ 'ko-font': currentLang === 'ko' }">
+          {{ t.countdownQuote }}
+        </h2>
         <div class="countdown-divider">
           <span class="diamond-icon">◆</span>
         </div>
@@ -21,7 +23,7 @@
             <span class="card-corner top-left"></span>
             <span class="card-corner bottom-right"></span>
             <span class="time-num">{{ timeLeft.days }}</span>
-            <span class="time-label">NGÀY</span>
+            <span class="time-label">{{ t.days }}</span>
           </div>
 
           <span class="timer-separator">:</span>
@@ -30,7 +32,7 @@
             <span class="card-corner top-left"></span>
             <span class="card-corner bottom-right"></span>
             <span class="time-num">{{ timeLeft.hours }}</span>
-            <span class="time-label">GIỜ</span>
+            <span class="time-label">{{ t.hours }}</span>
           </div>
 
           <span class="timer-separator">:</span>
@@ -39,7 +41,7 @@
             <span class="card-corner top-left"></span>
             <span class="card-corner bottom-right"></span>
             <span class="time-num">{{ timeLeft.minutes }}</span>
-            <span class="time-label">PHÚT</span>
+            <span class="time-label">{{ t.minutes }}</span>
           </div>
 
           <span class="timer-separator">:</span>
@@ -48,7 +50,7 @@
             <span class="card-corner top-left"></span>
             <span class="card-corner bottom-right"></span>
             <span class="time-num">{{ timeLeft.seconds }}</span>
-            <span class="time-label">GIÂY</span>
+            <span class="time-label">{{ t.seconds }}</span>
           </div>
         </div>
       </div>
@@ -58,6 +60,7 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useLanguage } from '../i18n/translations' // Lưu ý đường dẫn tương đối
 
 export default {
   name: 'CountdownSection',
@@ -68,6 +71,8 @@ export default {
     }
   },
   setup(props) {
+    const { currentLang, t } = useLanguage()
+
     const timeLeft = ref({
       days: '00',
       hours: '00',
@@ -111,6 +116,8 @@ export default {
     })
 
     return {
+      currentLang,
+      t,
       timeLeft
     }
   }
@@ -118,6 +125,7 @@ export default {
 </script>
 
 <style scoped>
+/* Giữ nguyên toàn bộ CSS cũ của bạn và chỉ bổ sung class .ko-font bên dưới */
 .countdown-section {
   padding: 70px 20px;
   background: linear-gradient(135deg, #8a2120 0%, #631413 100%);
@@ -127,7 +135,6 @@ export default {
   overflow: hidden;
 }
 
-/* Khung viền nổi cổ điển bao bọc toàn bộ section */
 .ornamental-frame {
   max-width: 900px;
   margin: 0 auto;
@@ -182,6 +189,15 @@ export default {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+/* Tối ưu hiển thị font chữ tiếng Hàn cho tiêu đề */
+.countdown-quote.ko-font {
+  font-family: 'Noto Serif KR', 'Playfair Display', serif;
+  font-size: 2.3rem;
+  letter-spacing: 1px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
 .countdown-divider {
   display: flex;
   align-items: center;
@@ -213,7 +229,6 @@ export default {
   flex-wrap: wrap;
 }
 
-/* Card đếm ngược thiết kế kiểu vintage glass */
 .time-card {
   position: relative;
   background: rgba(40, 10, 10, 0.35);
@@ -234,7 +249,6 @@ export default {
   border-color: rgba(192, 156, 93, 0.8);
 }
 
-/* Chi tiết trang trí góc vuông cổ điển */
 .card-corner {
   position: absolute;
   width: 6px;
@@ -280,7 +294,6 @@ export default {
   margin-top: -15px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .timer-separator {
     display: none;
@@ -296,6 +309,9 @@ export default {
   }
   .countdown-quote {
     font-size: 2.6rem;
+  }
+  .countdown-quote.ko-font {
+    font-size: 1.8rem;
   }
   .timer-grid {
     gap: 10px;

@@ -1,11 +1,15 @@
 <template>
-  <section class="section gallery-section full-width-section">
+  <section class="section gallery-section full-width-section" :class="{ 'ko-font': currentLang === 'ko' }">
     <div class="gallery-container">
       <!-- Tiêu đề Gallery -->
       <div class="gallery-header">
-        <p class="section-subheading">KHOẢNH KHẮC</p>
-        <h2 class="couple-title">{{ groomName }} &amp; {{ brideName }}</h2>
-        <p class="scroll-hint">Kéo hoặc lăn chuột để xoay cuộn phim 3D &circlearrowright;</p>
+        <p class="section-subheading">{{ t.gallerySubheading }}</p>
+        <h2 class="couple-title" :class="{ 'ko-font': currentLang === 'ko' }">
+          {{ displayGroomName }} &amp; {{ displayBrideName }}
+        </h2>
+        <p class="scroll-hint" :class="{ 'ko-font': currentLang === 'ko' }">
+          {{ t.galleryScrollHint }} &circlearrowright;
+        </p>
       </div>
 
       <!-- Khung xoay 3D cuộn phim tròn -->
@@ -38,9 +42,10 @@
             <div class="photo-inner">
               <img 
                 :src="imgUrl" 
-                :alt="'Thước phim ' + (index + 1)"
+                :alt="`${t.galleryFrameAlt} ${index + 1}`"
                 loading="eager"
                 decoding="sync"
+                @error="onImageError"
               />
             </div>
 
@@ -57,7 +62,7 @@
           <button class="lightbox-nav prev" @click.stop="prevImage">&lsaquo;</button>
           
           <div class="lightbox-content" @click.stop>
-            <img :src="galleryList[selectedImageIndex]" alt="Ảnh phóng to" />
+            <img :src="galleryList[selectedImageIndex]" :alt="t.galleryLightboxAlt" />
           </div>
 
           <button class="lightbox-nav next" @click.stop="nextImage">&rsaquo;</button>
@@ -69,6 +74,7 @@
 
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useLanguage } from '../i18n/translations' // Lưu ý đường dẫn tương đối theo cấu trúc dự án
 
 export default {
   name: 'GallerySection',
@@ -79,16 +85,28 @@ export default {
     },
     groomName: {
       type: String,
-      default: 'Nhật Huy'
+      default: ''
     },
     brideName: {
       type: String,
-      default: 'Duyên Đỗ'
+      default: ''
     }
   },
   setup(props) {
+    const { currentLang, t } = useLanguage()
+
     const galleryList = computed(() => props.gallery)
     const selectedImageIndex = ref(null)
+
+    const displayGroomName = computed(() => {
+      if (currentLang.value === 'ko') return t.value.defaultGroom
+      return props.groomName || t.value.defaultGroom
+    })
+
+    const displayBrideName = computed(() => {
+      if (currentLang.value === 'ko') return t.value.defaultBride
+      return props.brideName || t.value.defaultBride
+    })
     
     // 3D Reel State
     const rotationAngle = ref(0)
@@ -155,7 +173,6 @@ export default {
     }
 
     const openLightbox = (index) => {
-      // Tăng tolerance cho thiết bị di động để chạm tay không bị nhầm thành drag
       if (Math.abs(rotationAngle.value - currentAngleStart.value) > 5) return
       selectedImageIndex.value = index
       document.body.style.overflow = 'hidden'
@@ -182,7 +199,15 @@ export default {
       }
     }
 
+    const onImageError = (e) => {
+      e.target.style.display = 'none'
+    }
+
     return {
+      currentLang,
+      t,
+      displayGroomName,
+      displayBrideName,
       galleryList,
       selectedImageIndex,
       rotationAngle,
@@ -194,7 +219,8 @@ export default {
       openLightbox,
       closeLightbox,
       prevImage,
-      nextImage
+      nextImage,
+      onImageError
     }
   }
 }
@@ -206,12 +232,19 @@ export default {
   background-color: #121212;
   color: #ffffff;
   width: 100%;
-  overflow: hidden;
+  max-width: 100%;
+  overflow-x: clip;
   user-select: none;
+}
+
+.gallery-section.ko-font {
+  font-family: 'Noto Serif KR', 'Playfair Display', serif;
 }
 
 .gallery-container {
   width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
 }
 
 .gallery-header {
@@ -238,15 +271,30 @@ export default {
   margin-bottom: 6px;
 }
 
+/* Tối ưu hiển thị font chữ tiếng Hàn cho tên cặp đôi */
+.couple-title.ko-font {
+  font-family: 'Noto Serif KR', 'Playfair Display', serif;
+  font-size: 2.2rem;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+
 .scroll-hint {
   font-size: 0.8rem;
   color: #888888;
   font-style: italic;
 }
 
+.scroll-hint.ko-font {
+  font-style: normal;
+  letter-spacing: 0.5px;
+}
+
 /* Viewport 3D */
 .reel-viewport {
   width: 100%;
+  max-width: 100%;
   height: 500px;
   perspective: 2000px;
   display: flex;
@@ -254,7 +302,8 @@ export default {
   justify-content: center;
   cursor: grab;
   position: relative;
-  touch-action: pan-y; /* Cho phép cuộn trang dọc tự nhiên trên mobile */
+  overflow: hidden;
+  touch-action: pan-y;
 }
 
 .reel-viewport:active {
@@ -322,7 +371,6 @@ export default {
   transform: translateZ(0);
 }
 
-/* OPTIMIZE CHUẨN XÁC CHO THIẾT BỊ DI ĐỘNG (MOBILE) */
 @media (max-width: 576px) {
   .gallery-section {
     padding: 40px 0 60px;
@@ -330,6 +378,10 @@ export default {
 
   .couple-title {
     font-size: 2.8rem;
+  }
+
+  .couple-title.ko-font {
+    font-size: 1.75rem;
   }
 
   .reel-viewport {
@@ -353,8 +405,8 @@ export default {
 .lightbox {
   position: fixed;
   inset: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100dvh;
   background: rgba(0, 0, 0, 0.92);
   backdrop-filter: blur(5px);
   z-index: 999999;
@@ -363,6 +415,7 @@ export default {
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .lightbox-content {

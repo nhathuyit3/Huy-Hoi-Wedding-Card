@@ -1,26 +1,28 @@
 <template>
   <section class="hero-section grid-bg full-width-section">
-    <!-- Canvas hạt trái tim bay lên như bong bóng -->
     <canvas ref="heroParticleCanvas" id="heroParticleHeartCanvas"></canvas>
 
     <div class="hero-container-custom">
       <!-- Cột Nội Dung Bên Trái -->
       <div class="hero-text-content">
-        <!-- Huy hiệu 囍 nhỏ với hiệu ứng tỏa sóng chính tâm -->
         <div class="mini-badge-wrapper">
           <div class="mini-badge">
             <span>囍</span>
           </div>
         </div>
 
-        <p class="sub-title-header">WE'RE GETTING MARRIED</p>
+        <p class="sub-title-header">{{ t.gettingMarried }}</p>
 
         <!-- Tên Chú Rể & Cô Dâu -->
         <div class="couple-heading-wrapper">
-          <h1 class="couple-name groom">{{ data.groom?.shortName || 'Nhật Huy' }}</h1>
+          <h1 class="couple-name groom">
+            {{ currentLang === 'ko' ? (data.groom?.shortName_ko || data.groom?.shortName || t.defaultGroom) : (data.groom?.shortName || t.defaultGroom) }}
+          </h1>
           <div class="ampersand-row">
             <span class="ampersand">&amp;</span>
-            <h1 class="couple-name bride">{{ data.bride?.shortName || 'Duyên Đỗ' }}</h1>
+            <h1 class="couple-name bride">
+              {{ currentLang === 'ko' ? (data.bride?.shortName_ko || data.bride?.shortName || t.defaultBride) : (data.bride?.shortName || t.defaultBride) }}
+            </h1>
           </div>
         </div>
 
@@ -32,28 +34,32 @@
           </div>
           <div class="info-col border-left-right">
             <span class="col-main">{{ data.partyInfo?.time || '17:00' }}</span>
-            <span class="col-sub">THỨ HAI</span>
+            <span class="col-sub">{{ t.dayOfWeek }}</span>
           </div>
           <div class="info-col">
-            <span class="col-main">{{ data.partyInfo?.restaurantName || 'PHI LŨ' }}</span>
-            <span class="col-sub">{{ data.partyInfo?.hallName || 'SẢNH PEARL' }}</span>
+            <span class="col-main">
+              {{ currentLang === 'ko' ? (data.partyInfo?.restaurantName_ko || t.defaultRestaurant) : (data.partyInfo?.restaurantName || t.defaultRestaurant) }}
+            </span>
+            <span class="col-sub">
+              {{ currentLang === 'ko' ? (data.partyInfo?.hallName_ko || t.defaultHall) : (data.partyInfo?.hallName || t.defaultHall) }}
+            </span>
           </div>
         </div>
 
         <!-- Nút Xem Địa Điểm Tiệc -->
         <a :href="data.partyInfo?.mapDirectUrl || '#venue'" class="venue-btn">
-          <span class="pin-icon">📍</span> XEM ĐỊA ĐIỂM TIỆC <span class="arrow">↓</span>
+          <span class="pin-icon">📍</span> {{ t.viewVenueBtn }} <span class="arrow">↓</span>
         </a>
 
         <!-- Khung Kính Mời Khách -->
         <div class="guest-invitation-block">
-          <p class="invitation-text-intro">TRÂN TRỌNG KÍNH MỜI</p>
+          <p class="invitation-text-intro">{{ t.cordiallyInvite }}</p>
           <div v-if="guestName" class="guest-box">
-            <span class="guest-label">Mời anh/chị/bạn:</span>
+            <span class="guest-label">{{ t.guestPrefix }}</span>
             <h1 class="guest-name">{{ guestName }}</h1>
           </div>
           <div v-else class="guest-box">
-            <h1 class="guest-name default-title">Quý Khách &amp; Bạn Bè</h1>
+            <h1 class="guest-name default-title">{{ t.defaultGuest }}</h1>
           </div>
         </div>
       </div>
@@ -61,8 +67,6 @@
       <!-- Cột Khung Ảnh Polaroid Bên Phải -->
       <div class="hero-image-wrapper">
         <div class="polaroid-frame">
-          
-          <!-- HIỆU ỨNG NÉT VẼ TRÁI TIM BAO QUANH ẢNH -->
           <svg class="heart-draw-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
             <path
               class="heart-path"
@@ -77,7 +81,7 @@
           </svg>
 
           <div class="photo-container">
-            <img :src="data.heroPhoto" alt="Ảnh cưới chú rể & cô dâu" />
+            <img :src="data.heroPhoto" :alt="t.photoAlt" />
           </div>
           <p class="polaroid-caption">
             {{ data.displayDate || '03.08.2026' }}<span class="heart-icon">♥</span>
@@ -90,6 +94,7 @@
 
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
+import { useLanguage } from '../i18n/translations' // Lưu ý đường dẫn tương đối
 
 export default {
   name: 'HeroSection',
@@ -100,14 +105,14 @@ export default {
     },
     guestName: {
       type: String,
-      default: 'Quý Khách'
+      default: ''
     }
   },
   setup() {
+    const { currentLang, t } = useLanguage()
     const heroParticleCanvas = ref(null)
     let animationFrameId = null
 
-    // HÀM VẼ TRÁI TIM LÊN CANVAS
     const drawHeart = (ctx, x, y, size, color, alpha) => {
       ctx.save()
       ctx.globalAlpha = alpha
@@ -124,7 +129,6 @@ export default {
       ctx.restore()
     }
 
-    // HIỆU ỨNG TRÁI TIM BỎNG BÓNG BAY LÊN
     const initHeroParticleCanvas = () => {
       const canvas = heroParticleCanvas.value
       if (!canvas) return
@@ -191,6 +195,8 @@ export default {
     })
 
     return {
+      currentLang,
+      t,
       heroParticleCanvas
     }
   }
