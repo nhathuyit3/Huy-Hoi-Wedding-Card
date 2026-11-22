@@ -1,35 +1,31 @@
 <template>
   <section class="cover-door" :class="{ opened: isOpened }">
-    <!-- 2 Cánh cửa mở sang 2 bên -->
     <div class="door-panel door-left"></div>
     <div class="door-panel door-right"></div>
 
-    <!-- Canvas hạt trái tim bay lên như bong bóng -->
     <canvas 
       ref="particleCanvas" 
       id="particleHeartCanvas" 
       :class="{ 'fade-out': isOpened }"
     ></canvas>
 
-    <!-- Khung nội dung giữa màn hình theo mẫu thiết kế -->
     <div class="cover-content">
-      <span class="sub-header">WEDDING INVITATION</span>
+      <span class="sub-header">{{ t.weddingInvitation }}</span>
 
-      <!-- Nút Chữ Hỷ Tỏa Ra & Nhấn Để Mở Thiệp -->
       <div 
         class="double-happiness-badge pulse-effect" 
         @click="handleOpen"
         role="button"
         tabindex="0"
-        title="Nhấn để mở thiệp"
+        :title="t.openCardTitle"
       >
         <span class="double-happiness-text">囍</span>
       </div>
 
       <h1 class="main-title">
-        <span class="groom-short">{{ data.groom?.shortName }}</span>
+        <span class="groom-short">{{ currentLang === 'ko' ? (data.groom?.shortName_ko || data.groom?.shortName) : data.groom?.shortName }}</span>
         <span class="heart-sep">♥</span>
-        <span class="bride-short">{{ data.bride?.shortName }}</span>
+        <span class="bride-short">{{ currentLang === 'ko' ? (data.bride?.shortName_ko || data.bride?.shortName) : data.bride?.shortName }}</span>
       </h1>
 
       <div class="date-location-wrapper">
@@ -41,9 +37,8 @@
         <p class="location-text location-city">{{ formattedLocation }}</p>
       </div>
 
-      <!-- Cuộn / Gợi ý mở thiệp -->
       <div class="scroll-hint" @click="handleOpen">
-        <span class="hint-text">CUỘN ĐỂ MỞ THIỆP</span>
+        <span class="hint-text">{{ t.scrollToOpen }}</span>
         <span class="arrow-down">▼</span>
       </div>
     </div>
@@ -52,6 +47,7 @@
 
 <script>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useLanguage } from '../i18n/translations' // Lưu ý đường dẫn tương đối
 
 export default {
   name: 'CoverDoor',
@@ -67,6 +63,7 @@ export default {
   },
   emits: ['open'],
   setup(props, { emit }) {
+    const { currentLang, t } = useLanguage()
     const particleCanvas = ref(null)
     let animationFrameId = null
 
@@ -83,11 +80,13 @@ export default {
     })
 
     const formattedLocation = computed(() => {
+      if (currentLang.value === 'ko') {
+        return props.data?.locationCity_ko || t.value.defaultLocation
+      }
       const city = props.data?.locationCity || 'ĐÀ NẴNG'
       return `${city.toUpperCase()} · VIỆT NAM`
     })
 
-    // HÀM VẼ TRÁI TIM LÊN CANVAS
     const drawHeart = (ctx, x, y, size, color, alpha) => {
       ctx.save()
       ctx.globalAlpha = alpha
@@ -95,34 +94,15 @@ export default {
       ctx.beginPath()
       const topCurveHeight = size * 0.3
       ctx.moveTo(x, y + topCurveHeight)
-      // Nửa trái tim bên trái
-      ctx.bezierCurveTo(
-        x, y, 
-        x - size / 2, y, 
-        x - size / 2, y + topCurveHeight
-      )
-      ctx.bezierCurveTo(
-        x - size / 2, y + (size + topCurveHeight) / 2, 
-        x, y + size, 
-        x, y + size
-      )
-      // Nửa trái tim bên phải
-      ctx.bezierCurveTo(
-        x, y + size, 
-        x + size / 2, y + (size + topCurveHeight) / 2, 
-        x + size / 2, y + topCurveHeight
-      )
-      ctx.bezierCurveTo(
-        x + size / 2, y, 
-        x, y, 
-        x, y + topCurveHeight
-      )
+      ctx.bezierCurveTo(x, y, x - size / 2, y, x - size / 2, y + topCurveHeight)
+      ctx.bezierCurveTo(x - size / 2, y + (size + topCurveHeight) / 2, x, y + size, x, y + size)
+      ctx.bezierCurveTo(x, y + size, x + size / 2, y + (size + topCurveHeight) / 2, x + size / 2, y + topCurveHeight)
+      ctx.bezierCurveTo(x + size / 2, y, x, y, x, y + topCurveHeight)
       ctx.closePath()
       ctx.fill()
       ctx.restore()
     }
 
-    // HIỆU ỨNG TRÁI TIM BỎNG BÓNG BAY LÊN
     const initParticleCanvas = () => {
       const canvas = particleCanvas.value
       if (!canvas) return
@@ -138,41 +118,37 @@ export default {
       }
       window.addEventListener('resize', handleResize)
 
-      // Khởi tạo danh sách các hạt trái tim bong bóng
       const hearts = []
-      const heartCount = 45 // Số lượng trái tim cùng xuất hiện
+      const heartCount = 45
 
       const createHeart = (initialY = null) => {
         return {
           x: Math.random() * width,
           y: initialY !== null ? initialY : height + Math.random() * 100,
-          size: Math.random() * 12 + 8, // Kích thước ngẫu nhiên (8px - 20px)
-          speedY: Math.random() * 1.2 + 0.6, // Tốc độ bay lên
-          swingSpeed: Math.random() * 0.03 + 0.01, // Tốc độ lắc đung đưa ngang
+          size: Math.random() * 12 + 8,
+          speedY: Math.random() * 1.2 + 0.6,
+          swingSpeed: Math.random() * 0.03 + 0.01,
           swingAmount: Math.random() * 1.5 + 0.5,
           swingAngle: Math.random() * Math.PI * 2,
-          alpha: Math.random() * 0.5 + 0.25, // Độ trong suốt nhẹ nhàng
-          color: Math.random() > 0.3 ? '#ba2b3b' : '#c09c5d' // Phối giữa Đỏ Đô & Vàng Ánh Kim
+          alpha: Math.random() * 0.5 + 0.25,
+          color: Math.random() > 0.3 ? '#ba2b3b' : '#c09c5d'
         }
       }
 
       for (let i = 0; i < heartCount; i++) {
-        hearts.push(createHeart(Math.random() * height)) // Rải đều khắp màn hình lúc bắt đầu
+        hearts.push(createHeart(Math.random() * height))
       }
 
       const drawParticles = () => {
         ctx.clearRect(0, 0, width, height)
 
         hearts.forEach((h) => {
-          // Cập nhật vị trí
           h.y -= h.speedY
           h.swingAngle += h.swingSpeed
           h.x += Math.sin(h.swingAngle) * h.swingAmount
 
-          // Vẽ hình trái tim
           drawHeart(ctx, h.x, h.y, h.size, h.color, h.alpha)
 
-          // Khi trái tim bay hết lên đỉnh màn hình, tái tạo lại ở phía dưới
           if (h.y < -30) {
             Object.assign(h, createHeart(height + 20))
           }
@@ -200,6 +176,8 @@ export default {
     })
 
     return {
+      currentLang,
+      t,
       particleCanvas,
       formattedDate,
       formattedLocation,

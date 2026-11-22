@@ -1,5 +1,5 @@
 <template>
-  <section class="section timeline-section full-width-section">
+  <section class="section timeline-section full-width-section" :class="{ 'ko-font': currentLang === 'ko' }">
     <div class="falling-hearts-container" aria-hidden="true">
       <span v-for="n in 12" :key="n" class="falling-heart" :style="getHeartStyle(n)">♥</span>
     </div>
@@ -10,8 +10,10 @@
     <div class="container-inner">
       <!-- Tiêu đề phần Story -->
       <div class="timeline-header">
-        <p class="section-subheading">OUR LOVE STORY</p>
-        <h2 class="section-heading">Hành Trình Bên Nhau</h2>
+        <p class="section-subheading">{{ t.timelineSubheading }}</p>
+        <h2 class="section-heading" :class="{ 'ko-font': currentLang === 'ko' }">
+          {{ t.timelineHeading }}
+        </h2>
         <div class="title-divider">
           <span class="heart-icon">♥</span>
         </div>
@@ -47,8 +49,12 @@
           <!-- Cột Nội Dung Văn Bản (Typography Trang Trọng) -->
           <div class="timeline-content">
             <span class="timeline-date-tag">{{ item.date }}</span>
-            <h3 class="timeline-title">{{ item.title }}</h3>
-            <p class="timeline-desc">{{ item.desc }}</p>
+            <h3 class="timeline-title" :class="{ 'ko-font': currentLang === 'ko' }">
+              {{ item.title }}
+            </h3>
+            <p class="timeline-desc" :class="{ 'ko-font': currentLang === 'ko' }">
+              {{ item.desc }}
+            </p>
           </div>
         </div>
       </div>
@@ -58,6 +64,7 @@
 
 <script>
 import { computed } from 'vue'
+import { useLanguage } from '../i18n/translations' // Lưu ý đường dẫn tương đối theo cấu trúc dự án
 
 export default {
   name: 'TimelineSection',
@@ -68,8 +75,26 @@ export default {
     }
   },
   setup(props) {
-    const timelineList = computed(() => props.timeline)
-    
+    const { currentLang, t } = useLanguage()
+
+    // Kết hợp ảnh từ props.timeline (nếu có truyền vào) với nội dung dịch theo ngôn ngữ hiện tại
+    const timelineList = computed(() => {
+      const translatedItems = t.value.timelineItems || []
+      if (Array.isArray(props.timeline) && props.timeline.length > 0) {
+        return props.timeline.map((propItem, index) => {
+          const translated = translatedItems[index] || {}
+          return {
+            ...propItem,
+            date: translated.date || propItem.date,
+            title: translated.title || propItem.title,
+            desc: translated.desc || propItem.desc,
+            image: propItem.image || translated.image
+          }
+        })
+      }
+      return translatedItems
+    })
+
     const getHeartStyle = (index) => {
       const left = (index * 8.3) % 100
       const duration = 6 + (index % 5) * 2
@@ -84,6 +109,8 @@ export default {
     }
 
     return {
+      currentLang,
+      t,
       timelineList,
       getHeartStyle
     }
@@ -92,8 +119,8 @@ export default {
 </script>
 
 <style scoped>
-/* Nạp Font Trang Trọng (Playfair Display & Lora hỗ trợ tiếng Việt) */
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap');
+/* Nạp Font Trang Trọng (Playfair Display, Lora & Noto Serif KR hỗ trợ tiếng Việt & tiếng Hàn) */
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Noto+Serif+KR:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500..800;1,500..800&display=swap');
 
 /* 📖 PHONG CÁCH SỔ TAY HOÀI CỔ (VINTAGE NOTEBOOK) */
 .timeline-section {
@@ -109,7 +136,11 @@ export default {
   overflow: hidden;
   position: relative;
   box-shadow: inset 0 0 100px rgba(110, 85, 50, 0.12);
-  font-family: 'Lora', serif; /* Font Serif hoài cổ toàn section */
+  font-family: 'Lora', serif;
+}
+
+.timeline-section.ko-font {
+  font-family: 'Noto Serif KR', 'Lora', serif;
 }
 
 /* Gáy sổ hoài cổ */
@@ -170,8 +201,14 @@ export default {
   font-size: 2.6rem;
   color: #7a1c1b;
   font-weight: 600;
-  font-family: 'Playfair Display', serif; /* Font tiêu đề sang trọng */
+  font-family: 'Playfair Display', serif;
   letter-spacing: 0.5px;
+}
+
+.section-heading.ko-font {
+  font-family: 'Noto Serif KR', 'Playfair Display', serif;
+  font-size: 2.3rem;
+  letter-spacing: 1px;
 }
 
 .title-divider {
@@ -353,17 +390,27 @@ export default {
   color: #2b211d;
   margin-bottom: 12px;
   font-weight: 700;
-  font-family: 'Playfair Display', serif; /* Font tiêu đề mốc thời gian */
+  font-family: 'Playfair Display', serif;
   line-height: 1.35;
   letter-spacing: 0.2px;
+}
+
+.timeline-title.ko-font {
+  font-family: 'Noto Serif KR', 'Playfair Display', serif;
+  font-size: 1.32rem;
 }
 
 .timeline-desc {
   font-size: 0.98rem;
   color: #4a3e39;
   line-height: 1.75;
-  font-family: 'Lora', serif; /* Font mô tả tiếng Việt sắc nét, chuẩn thiệp cưới */
+  font-family: 'Lora', serif;
   font-weight: 400;
+}
+
+.timeline-desc.ko-font {
+  font-family: 'Noto Serif KR', 'Lora', serif;
+  line-height: 1.8;
 }
 
 .timeline-item.reverse {
@@ -453,6 +500,10 @@ export default {
 
   .section-heading {
     font-size: 2.1rem;
+  }
+
+  .section-heading.ko-font {
+    font-size: 1.85rem;
   }
 
   .timeline-title {

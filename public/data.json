@@ -1,10 +1,10 @@
 {
-  "weddingDateISO": "2026-08-30T17:00:00",
-  "displayDate": "03.08.2026",
+  "weddingDateISO": "2027-06-15T17:00:00",
+  "displayDate": "15.06.2027",
   "lunarDate": "21/06 BÍNH NGỌ",
   "locationCity": "ĐÀ NẴNG",
   "bgMusic": "assets/audio/nothings-gonna-change-my-love-for-you.mp3",
-  "heroPhoto": "assets/images/anhcuoi_chinh.png",
+  "heroPhoto": "assets/images/huy_khue_wedding_img_1.png",
   "groom": {
     "fullName": "Hồ Nhật Huy",
     "shortName": "Nhật Huy",
@@ -16,13 +16,13 @@
     }
   },
   "bride": {
-    "fullName": "Võ Minh Tâm",
-    "shortName": "Minh Tâm",
-    "role": "ÚT NỮ",
+    "fullName": "Đặng Thị Bích Khuê",
+    "shortName": "Bích Khuê",
+    "role": "TRƯỞNG NỮ",
     "family": {
       "father": "NGUYỄN TƯ",
       "mother": "NGUYỄN THỊ XANH",
-      "address": "Tổ 9, Thôn 5, X. Tiên Phước, TP. Đà Nẵng"
+      "address": "Lý Triện, P. Thanh Khê, TP. Đà Nẵng"
     }
   },
   "partyInfo": {
@@ -42,26 +42,26 @@
   },
   "timeline": [
     {
-      "date": "2022",
+      "date": "2026",
       "title": "Lần Đầu Gặp Gỡ",
       "desc": "Ánh mắt đầu tiên chạm nhau tại quán cà phê nhỏ ở Đà Nẵng.",
-      "image": "assets/images/timhieu.png"
-    },
-    {
-      "date": "2022",
-      "title": "Lời Đồng Ý",
-      "desc": "Chính thức nắm tay nhau bước vào chặng đường hẹn hò ngọt ngào.",
-      "image": "assets/images/totinh.png"
+      "image": "assets/images/huy_khue_tim_hieu_img.png"
     },
     {
       "date": "2026",
+      "title": "Lời Đồng Ý",
+      "desc": "Chính thức nắm tay nhau bước vào chặng đường hẹn hò ngọt ngào.",
+      "image": "assets/images/huy_khue_to_tinh.png"
+    },
+    {
+      "date": "2027",
       "title": "Lời Cầu Hôn",
       "desc": "\"Đồng ý làm vợ anh nhé!\" — Dưới ánh hoàng hôn bờ biển Bà Nà.",
-      "image": "assets/images/cauhon.png"
+      "image": "assets/images/huy_khue_cau_hon.png"
     }
   ],
   "gallery": [
-    "assets/images/anhcuoi1.png",
+    "assets/images/bich_khue_codau.png",
     "assets/images/anhcuoi2.png",
     "assets/images/anhcuoi3.png",
     "assets/images/anhcuoi4.png",
@@ -75,7 +75,15 @@
     "assets/images/anhcuoi6.png",
     "assets/images/anhcuoi7.png",
     "assets/images/anhcuoi8.png",
-    "assets/images/anhcuoi9.png"
+    "assets/images/anhcuoi9.png",
+    "assets/images/anhcuoi10.png",
+    "assets/images/anhcuoi11.png",
+    "assets/images/anhcuoi12.png",
+    "assets/images/anhcuoi14.png",
+    "assets/images/anhcuoi15.png",
+    "assets/images/anhcuoi16.png",
+    "assets/images/anhcuoi17.png",
+    "assets/images/anhcuoi18.png"
   ],
   "venue": {
     "hallName": "SẢNH PEARL",
@@ -96,7 +104,7 @@
     "bride": {
       "bankName": "VCB",
       "accountNumber": "9876543210",
-      "accountName": "DUYEN DO"
+      "accountName": "BICH KHUE"
     }
   },
   "rsvp_script_url": "https://script.google.com/macros/s/AKfycbwgNJZ9q2xWWeaClLRE073i53kS1GKNZdXP7EGHt9PNUUP6xcoO034BoRjYT2kDgfgAgA/exec"

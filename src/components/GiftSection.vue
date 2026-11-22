@@ -21,7 +21,7 @@
             />
           </div>
           <div class="account-details">
-            <p class="account-name">{{ groomInfo.accountName || 'NHA T HUY' }}</p>
+            <p class="account-name">{{ groomInfo.accountName || 'NHAT HUY' }}</p>
             <p class="bank-name">{{ groomInfo.bankName || 'MB Bank' }}</p>
             <p class="account-number">{{ groomInfo.accountNumber || '0123456789' }}</p>
           </div>
@@ -38,7 +38,7 @@
             />
           </div>
           <div class="account-details">
-            <p class="account-name">{{ brideInfo.accountName || 'DUYEN DO' }}</p>
+            <p class="account-name">{{ brideInfo.accountName || 'BICH KHUE' }}</p>
             <p class="bank-name">{{ brideInfo.bankName || 'Vietcombank' }}</p>
             <p class="account-number">{{ brideInfo.accountNumber || '9876543210' }}</p>
           </div>
